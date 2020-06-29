@@ -402,7 +402,9 @@ mixerinfo_types = {
     # their existance reported as 1 (which means the track exists) in order to light on the Mute and Solo buttons on the device
     "EXIST": 64,
     "SELECTED": 66,
-
+    
+    # This one only will make an effect on devices with full feature support, like the S-Series MK2 and it's used to send the peak meter information
+    "PEAK": 73
 }
 
 
