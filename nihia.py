@@ -42,15 +42,60 @@ import playlist
 import midi
 import utils
 
+import math
+
+###########################################################################################################################################
+# Editable variables
+###########################################################################################################################################
+
+# Adjusts behaviour depending on which device is talking to
+# If set to "S_SERIES" it will adapt for S-Series devices
+# If set to "A_SERIES" OR "M_SERIES" it will adapt for A-Series and M-Series devices
+DEVICE_SERIES = "A_SERIES"
 
 ###########################################################################################################################################
 # Test tools
 ###########################################################################################################################################
 
 test = ""
+
+def encoderHandler(axis: str) -> int:
+    """ Allows to handle the inversion of axis of the 4D Encoder that happens between A/M-Series devices and S-Series devices, by 
+    returning the right MIDI value FL Studio has to check for.
+    ### Parameters
+     - axis: The axis you want to get the value for.
+    """
+    devices = {
+        "A_SERIES": 1,
+        "M_SERIES": 1,
+        "S_SERIES": 2
+    }
+
+    device = devices.get(DEVICE_SERIES)
+
+    # Device check
+    if device == 1:
+        # X axis
+        if axis == "X":
+           return buttons.get("ENCODER_X_A")
+        
+        # Y axis
+        if axis == "Y":
+           return buttons.get("ENCODER_Y_A")
+
+    if device == 2:
+        # X axis
+        if axis == "X":
+           return buttons.get("ENCODER_X_S")
+        
+        # Y axis
+        if axis == "Y":
+           return buttons.get("ENCODER_Y_S")
     
 def OnInit():
         handShake()
+
+        print("Set DEVICE_SERIES to the kind of device you are using in order to avoid problems with the 4D Encoder.")
 
 
 def OnMidiIn(event):
@@ -117,27 +162,27 @@ def OnMidiIn(event):
             print("SOLO button pressed.")
 
         # 4D Encoder +
-        if event.data1 == buttons.get("ENCODER_PLUS")[0] and event.data2 == buttons.get("ENCODER_PLUS")[1]:
+        if event.data1 == buttons.get("ENCODER_PLUS") and event.data2 == buttons.get("ENCODER_PLUS")[1]:
             print("ENCODER [+] pressed.")
 
         # 4D Encoder -
-        if event.data1 == buttons.get("ENCODER_MINUS")[0] and event.data2 == buttons.get("ENCODER_MINUS")[1]:
+        if event.data1 == buttons.get("ENCODER_MINUS") and event.data2 == buttons.get("ENCODER_MINUS")[1]:
             print("ENCODER [-] pressed.")
         
         # 4D Encoder up
-        if event.data1 == buttons.get("ENCODER_UP")[0] and event.data2 == buttons.get("ENCODER_UP")[1]:
+        if event.data1 == encoderHandler("Y") and event.data2 == buttons.get("UP"):
             print("ENCODER UP pressed.")
         
         # 4D Encoder down 
-        if event.data1 == buttons.get("ENCODER_DOWN")[0] and event.data2 == buttons.get("ENCODER_DOWN")[1]:
+        if event.data1 == encoderHandler("Y") and event.data2 == buttons.get("DOWN"):
             print("ENCODER DOWN pressed.")
         
         # 4D Encoder left
-        if event.data1 == buttons.get("ENCODER_LEFT")[0] and event.data2 == buttons.get("ENCODER_LEFT")[1]:
+        if event.data1 == encoderHandler("X") and event.data2 == buttons.get("LEFT"):
             print("ENCODER LEFT pressed.")
         
         # 4D Encoder right
-        if event.data1 == buttons.get("ENCODER_RIGHT")[0] and event.data2 == buttons.get("ENCODER_RIGHT")[1]:
+        if event.data1 == encoderHandler("X") and event.data2 == buttons.get("RIGHT"):
             print("ENCODER RIGHT pressed.")
 
         # 4D Encoder buttons
@@ -146,102 +191,104 @@ def OnMidiIn(event):
 
 
         # Knobs
-        if event.data1 == knobs.get("KNOB_1A_PLUS")[0] and event.data2 == knobs.get("KNOB_1A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_1A") and event.data2 == knobs.get("INCREASE"):
+            event.handled = True
             print("KNOB 1 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_1A_MINUS")[0] and event.data2 == knobs.get("KNOB_1A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_1A") and event.data2 == knobs.get("DECREASE"):
+            event.handled = True
             print("KNOB 1 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_2A_PLUS")[0] and event.data2 == knobs.get("KNOB_2A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_2A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 2 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_2A_MINUS")[0] and event.data2 == knobs.get("KNOB_2A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_2A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 2 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_3A_PLUS")[0] and event.data2 == knobs.get("KNOB_3A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_3A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 3 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_3A_MINUS")[0] and event.data2 == knobs.get("KNOB_3A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_3A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 3 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_4A_PLUS")[0] and event.data2 == knobs.get("KNOB_4A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_4A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 4 [+] pressed.")
         
-        if event.data1 == knobs.get("KNOB_4A_MINUS")[0] and event.data2 == knobs.get("KNOB_4A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_4A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 4 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_5A_PLUS")[0] and event.data2 == knobs.get("KNOB_5A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_5A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 5 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_5A_MINUS")[0] and event.data2 == knobs.get("KNOB_5A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_5A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 5 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_6A_PLUS")[0] and event.data2 == knobs.get("KNOB_6A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_6A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 6 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_6A_MINUS")[0] and event.data2 == knobs.get("KNOB_6A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_6A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 6 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_7A_PLUS")[0] and event.data2 == knobs.get("KNOB_7A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_7A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 7 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_7A_MINUS")[0] and event.data2 == knobs.get("KNOB_7A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_7A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 7 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_8A_PLUS")[0] and event.data2 == knobs.get("KNOB_8A_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_8A") and event.data2 == knobs.get("INCREASE"):
             print("KNOB 8 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_8A_MINUS")[0] and event.data2 == knobs.get("KNOB_8A_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_8A") and event.data2 == knobs.get("DECREASE"):
             print("KNOB 8 [-] pressed.")
         
 
         
-        if event.data1 == knobs.get("KNOB_1B_PLUS")[0] and event.data2 == knobs.get("KNOB_1B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_1B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 1 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_1B_MINUS")[0] and event.data2 == knobs.get("KNOB_1B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_1B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 1 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_2B_PLUS")[0] and event.data2 == knobs.get("KNOB_2B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_2B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 2 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_2B_MINUS")[0] and event.data2 == knobs.get("KNOB_2B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_2B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 2 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_3B_PLUS")[0] and event.data2 == knobs.get("KNOB_3B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_3B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 3 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_3B_MINUS")[0] and event.data2 == knobs.get("KNOB_3B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_3B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 3 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_4B_PLUS")[0] and event.data2 == knobs.get("KNOB_4B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_4B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 4 [+] pressed.")
         
-        if event.data1 == knobs.get("KNOB_4B_MINUS")[0] and event.data2 == knobs.get("KNOB_4B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_4B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 4 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_5B_PLUS")[0] and event.data2 == knobs.get("KNOB_5B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_5B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 5 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_5B_MINUS")[0] and event.data2 == knobs.get("KNOB_5B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_5B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 5 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_6B_PLUS")[0] and event.data2 == knobs.get("KNOB_6B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_6B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 6 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_6B_MINUS")[0] and event.data2 == knobs.get("KNOB_6B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_6B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 6 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_7B_PLUS")[0] and event.data2 == knobs.get("KNOB_7B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_7B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 7 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_7B_MINUS")[0] and event.data2 == knobs.get("KNOB_7B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_7B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 7 [-] pressed.")
 
-        if event.data1 == knobs.get("KNOB_8B_PLUS")[0] and event.data2 == knobs.get("KNOB_8B_PLUS")[1]:
+        if event.data1 == knobs.get("KNOB_8B") and event.data2 == knobs.get("INCREASE"):
             print("SHIFT + KNOB 8 [+] pressed.")
 
-        if event.data1 == knobs.get("KNOB_8B_MINUS")[0] and event.data2 == knobs.get("KNOB_8B_MINUS")[1]:
+        if event.data1 == knobs.get("KNOB_8B") and event.data2 == knobs.get("DECREASE"):
             print("SHIFT + KNOB 8 [-] pressed.")
 
 
@@ -249,6 +296,10 @@ def OnDeInit():
     goodBye()
 ###########################################################################################################################################
 
+
+###########################################################################################################################################
+# Dictionaries
+###########################################################################################################################################
 
 # Button name to button ID dictionary
 # The button ID is the number in hex that is used as the DATA1 parameter when a MIDI message related to that button is
@@ -272,21 +323,37 @@ buttons = {
     "MUTE": 67,
     "SOLO": 68,
 
+    "MUTE_SELECTED": 102,
+    "SOLO_SELECTED": 103,
+
     "ENCODER_BUTTON": 96,
     "ENCODER_BUTTON_SHIFTED": 97,
     
     # The 4D encoder events use the same data1, but different data2
     # For example, if you want to retrieve the data1 value for ENCODER_PLUS you would do nihia.buttons.get("ENCODER_PLUS")[0]
-    "ENCODER_RIGHT": [50, 1],
-    "ENCODER_LEFT": [50, 127],
+    # 
+    # data1 values are inverted for the axis of the 4D Encoder between A/M devices and S devices
+    # The values represented here correspond to A/M-Series
+    # D-pad
+    "ENCODER_X_A": 50,
+    "ENCODER_X_S": 48,
+    "RIGHT": 1,
+    "LEFT": 127,
     
-    "ENCODER_UP": [48, 127],
-    "ENCODER_DOWN": [48, 1],
+    "ENCODER_Y_A": 48,
+    "ENCODER_Y_S": 50,
+    "UP": 127,
+    "DOWN": 1,
 
-    "ENCODER_PLUS": [52, 1],
-    "ENCODER_MINUS": [52, 127]
+    # Jog / knob
+    "ENCODER_GENERAL": 52,
+    "ENCODER_VOLUME_SELECTED": 100,
+    "ENCODER_PAN_SELECTED": 101,
+
+    "PLUS": 1,
+    "MINUS": 127,
+
 }
-
 
 # Knob to knob ID dictionary
 # The number in the name of the knob refers to the physical knob in the device from left to right
@@ -313,10 +380,73 @@ knobs = {
     "KNOB_7B": 94,
     "KNOB_8B": 95,
 
-    "INCREASE": 1,
-    "DECREASE": 127
-
+    "INCREASE": 63,
+    "DECREASE": 65
 }
+
+# Dictionary that goes between the different kinds of information that can be sent to the device to specify information about the mixer tracks
+# and their corresponding identificative bytes
+mixerinfo_types = {
+    "VOLUME": 70,
+    "PAN": 71,
+    "IS_MUTE": 67,
+    "IS_SOLO": 68,
+    "NAME": 72,
+    
+    # This one makes more sense on DAWs that create more tracks as the user requests it, as there might be projects (for example) on Ableton Live
+    # with only two tracks
+    # However, since FL Studio has all playlist and mixer tracks created, it has no use at all (maybe on the channel rack) and all tracks should have
+    # their existance reported as 1 (which means the track exists) in order to light on the Mute and Solo buttons on the device
+    "EXIST": 64,
+    "SELECTED": 66,
+
+    "SELECTED_AVAILABLE": 104,
+    "SELECTED_MUTE_BY_SOLO": 105,
+
+    # This one only will make an effect on devices with full feature support, like the S-Series MK2 and it's used to send the peak meter information
+    "PEAK": 73,
+
+    # Serves to tell the device if there's a Komplete Kontrol instance added in a certain track or not
+    # In case there's one, we would use mixerSendInfo("KOMPLETE_INSTANCE", trackID, info="NIKBxx")
+    # In case there's none, we would use mixerSendInfo("KOMPLETE_INSTANCE", trackID, info="")
+    # NIKBxx is the name of the first automation parameter of the Komplete Kontrol plugin
+    "KOMPLETE_INSTANCE": 65,
+
+    # The S-Series keyboard have two arrows that graphically show the position of the volume fader and the pan on the screen
+    # These definitions have the MIDI values that have to be set as the data1 value of a simple MIDI message to tell the device where the volume arrow
+    # or the pan arrow should be for the first track
+    # For the rest of the tracks, you sum incrementally
+    # Example:
+    # ----------------------------------------------------
+    # BF 50 00  // Moves the volume fader of the first track down to the bottom 
+    # BF 50 40  // Moves the volume fader of the first track to the middle
+    # 
+    # BF 51 00  // Moves the volume fader of the second track down to the bottom 
+    # BF 51 40  // Moves the volume fader of the second track to the middle
+    # 
+    # BF 58 00  // Moves the pan fader of the first track down to the bottom 
+    # BF 58 40  // Moves the pan fader of the first track to the middle
+    # 
+    # BF 59 00  // Moves the pan fader of the second track down to the bottom 
+    # BF 59 40  // Moves the pan fader of the second track to the middle    
+    
+    "VOLUME_GRAPH": 80,
+    "PAN_GRAPH": 88,
+}
+
+# Track types dictionary
+# Used when reporting existance of tracks
+track_types = {
+    "EMPTY": 0,
+    "GENERIC": 1,
+    "MIDI": 2,
+    "AUDIO": 3,
+    "GROUP": 4,
+    "RETURN_BUS": 5,
+    "MASTER": 6
+}
+
+
 
 # Method to make talking to the device less annoying
 # All the messages the device is expecting have a structure of "BF XX XX"
@@ -338,7 +468,7 @@ def handShake():
     was successful and returns True if affirmative."""
 
     # Sends the MIDI message that initiates the handshake: BF 01 01
-    dataOut(1, 1)
+    dataOut(1, 3)
 
     # TODO: Waits and reads the handshake confirmation message
    
@@ -380,32 +510,15 @@ def buttonSetLight(buttonName: str, lightMode: int):
     #Light mode integer to light mode hex dictionary
     lightModes = {
         0: 0,
-        1: 1
+        1: 1,
+
+        # For setting lights on of the right and down dot lights of the 4D Encoder on S-Series devices
+        127: 127
     }
 
     # Then sends the MIDI message using dataOut
     dataOut(buttons.get(buttonName), lightModes.get(lightMode))
 
-
-# Dictionary that goes between the different kinds of information that can be sent to the device to specify information about the mixer tracks
-# and their corresponding identificative bytes
-mixerinfo_types = {
-    "VOLUME": 70,
-    "PAN": 71,
-    "IS_MUTE": 67,
-    "IS_SOLO": 68,
-    "NAME": 72,
-    
-    # This one makes more sense on DAWs that create more tracks as the user requests it, as there might be projects (for example) on Ableton Live
-    # with only two tracks
-    # However, since FL Studio has all playlist and mixer tracks created, it has no use at all (maybe on the channel rack) and all tracks should have
-    # their existance reported as 1 (which means the track exists) in order to light on the Mute and Solo buttons on the device
-    "EXIST": 64,
-    "SELECTED": 66,
-    
-    # This one only will make an effect on devices with full feature support, like the S-Series MK2 and it's used to send the peak meter information
-    "PEAK": 73
-}
 
 
 # Method for reporting information about the mixer tracks, which is done through SysEx
@@ -415,59 +528,41 @@ def mixerSendInfo(info_type: str, trackID: int, **kwargs):
     
     ### Parameters
 
-     - info_type: The kind of information you're going to send. ("VOLUME", "PAN"...) Defined on `nihia.mixerinfo_types`
+     - info_type: The kind of information you're going to send as defined on `mixerinfo_types`. ("VOLUME", "PAN"...)
+         - Note: If declared as `"EXIST"`, you can also declare the track type on the `value` argument as a string (values are contained in `track_types` dictionary).
     
      - trackID: From 0 to 7. Tells the device which track from the ones that are showing up in the screen you're going to tell info about.
 
     The third (and last) argument depends on what kind of information you are going to send:
 
-     - value (integer): Can be 0 (no) or 1 (yes). Used for two-state properties like to tell if the track is solo-ed or not.
+     - value (integer): Can be 0 (no) or 1 (yes). Used for two-state properties like to tell if the track is solo-ed or not (except `"EXIST"`).
 
-    or
+     - info: Used for track name, track pan, track volume and the Komplete Kontrol instance ID.
 
-     - info: Used for track name, track pan, track volume and peak values.
-        - For peak values: Report them as `info=[LEFT_PEAK, RIGHT_PEAK]`. They can be neither integers or floats, and they will get reformated automatically. You can
-        also use the `mixer.getTrackPeaks` function directly to fill the argument, but remember you have to specify the left and the right channel separately.
-        - For everything else: Report the info as `info=TEXT_STRING`.
+     - peakValues: For peak values. They can be neither integers or floats, and they will get reformated automatically. You can
+    also use the `mixer.getTrackPeaks` function directly to fill the argument, but remember you have to specify the left and the right channel separately. You have to 
+    report them as a list of values: `peak=[peakL_0, peakR_0, peakL_1, peakR_1 ...]`
     """
 
     # Gets the inputed values for the optional arguments from **kwargs
     value = kwargs.get("value", 0)
     info = kwargs.get("info", None)
 
+    peakValues = kwargs.get("peakValues", None)
+
+    # Compatibility behaviour for older implementations of the layer before the addition of track_types
+    # This will retrieve the correct value in case the developer used the string based declaration
+    if type(value) == str:
+        value = track_types.get(value, 0)
+
+
     # Defines the behaviour for when additional info is reported (for track name, track pan, track volume and peak values)
     if info != None:
+        # Tells Python that the additional_info argument is in UTF-8
+        info = info.encode("UTF-8")
 
-        # Bifurcation of behaviour to stablish the different treatment(s) that certain type of data has to recieve before being sent to the device
-        
-        # For peak values
-        # Takes each value from the dictionary and rounds it in order to avoid conflicts with hexadecimals only being "compatible" with integer numbers 
-        # in case peak values are specified
-        if info_type == "PEAK":
-            
-            # Makes the max of the peak meter on the device match the one on FL Studio (values that FL Studio gives seem to be infinite)
-            if info[0] >= 1.1:
-                info[0] = 1.1
-            
-            if info[1] >= 1.1:
-                info[1] = 1.1
-            
-            # Translates the 0-1.1 range to 0-127 range
-            info[0] = info[0] * (127 / 1.1)
-            info[1] = info[1] * (127 / 1.1)
-            
-            # Truncates the possible decimals and declares the number as an integer to avoid errors in the translation of the data
-            info[0] = round(info[0])    # Left peak
-            info[1] = round(info[1])    # Right peak
-            
-
-        # For string-based data
-        elif info_type != "PEAK":
-            # Tells Python that the additional_info argument is in UTF-8
-            info = info.encode("UTF-8")
-
-            # Converts the text string to a list of Unicode values
-            info = list(bytes(info))
+        # Converts the text string to a list of Unicode values
+        info = list(bytes(info))
         
         # Conforms the kind of message midiOutSysex is waiting for
         msg = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), value, trackID] + info + [247]
@@ -476,7 +571,97 @@ def mixerSendInfo(info_type: str, trackID: int, **kwargs):
         device.midiOutSysex(bytes(msg))
 
     # Defines how the method should work normally
-    else:
+    elif info == None:
         
         # Takes the information and wraps it on how it should be sent and sends the message
         device.midiOutSysex(bytes([240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), value, trackID, 247]))
+
+    
+    # For peak values
+    # Takes each value from the dictionary and rounds it in order to avoid conflicts with hexadecimals only being "compatible" with integer numbers 
+    # in case peak values are specified
+    if peakValues != None:
+            
+        for x in range(0, 16):
+            # Makes the max of the peak meter on the device match the one on FL Studio (values that FL Studio gives seem to be infinite)
+            if peakValues[x] >= 1.1:
+                peakValues[x] = 1.1
+        
+            # Translates the 0-1.1 range to 0-127 range
+            peakValues[x] = peakValues[x] * (127 / 1.1)
+        
+            # Truncates the possible decimals and declares the number as an integer to avoid errors in the translation of the data
+            peakValues[x] = int(math.trunc(peakValues[x]))
+
+        # Conforms the kind of message midiOutSysex is waiting for
+        msg = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), 2, trackID] + peakValues + [247]
+
+        # Warps the data and sends it to the device
+        device.midiOutSysex(bytes(msg))
+
+
+# Method for changing the locations of the pan and volume arrows on the screen of S-Series devices to graphically show where the pan and volume faders are
+def mixerSetGraph(trackID: int, graph: str, location: float):
+    """ Method for changing the locations of the pan and volume arrows on the screen of S-Series devices to graphically show where the pan and volume faders are.
+    ### Parameters
+    
+     - trackID: From 0 to 7, the track whose the graph you want to update belongs to.
+     - graph: The graph you are going to change. Can be VOLUME or PAN.
+     - location: Can be filled using `mixer.getTrackVolume()` and `mixer.getTrackPan()`.
+         - `graph = "VOLUME"`: From 0  to 1.
+         - `graph = "PAN"`: From -1 to 1.
+    """
+    # Gets the right data1 value depending on the graph that has to be updated
+    if graph == "VOLUME":
+        graphValue = mixerinfo_types.get("VOLUME_GRAPH")
+    
+    if graph == "PAN":
+        graphValue = mixerinfo_types.get("PAN_GRAPH")
+    
+    # Adapts the given location value to MIDI values depending on the graph that is going to be updated
+    if graph == "VOLUME":
+        # Translates the 0-1 range to 0-127 range
+        location = location * 127
+    
+    if graph == "PAN":
+        # Translates the -1 to 1 range to 0-127 range
+        if location < 0:  # If the pan is negative, for hence is set to the left
+            location = abs(location)    # Gets the absolute value of the location
+            location = 64 - location * 64
+        
+        elif location == 0: # If the pan is negative, for hence is set to the center
+            location = 64
+        
+        elif location > 0:  # If the pan is positive, for hence is set to the right
+            location = 64 + location * 63
+    
+
+    # Truncates the possible decimals and declares the number as an integer to avoid errors in the translation of the data
+    location = int(math.trunc(location))
+
+    # Reports the change of the desired graph to the device
+    dataOut(graphValue + trackID, location)
+    
+
+def mixerSendInfoSelected(info_type: str, info: str):
+    """ Makes the device report MIDI messages for volume and pan adjusting for the selected track when exsitance of this track is reported as true.
+    ### Parameters
+     - info_type: The data you are going to tell about the selected track.
+         - SELECTED: If there's a track selected on the mixer or not.
+         - MUTE_BY_SOLO: To tell if it's muted by solo.
+     - info: The value of the info you are telling.
+         - `info_type = SELECTED`: The track type as defined on `track_types`.
+         - `info_type = MUTE_BY_SOLO`: Yes or no.
+    """
+    if info_type == "SELECTED":
+        info_type = mixerinfo_types.get("SELECTED_AVAILABLE")
+
+        info = track_types.get(info)
+    
+    # Not implemented yet in FL Studio
+    if info_type == "MUTE_BY_SOLO":
+        info_type = mixerinfo_types.get("SELECTED_MUTE_BY_SOLO")
+    
+
+    # Sends the message
+    dataOut(info_type, info)
