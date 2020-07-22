@@ -1,9 +1,5 @@
-# name=NIHIA Script (testing)
-# url= 
-
 # MIT License
-
-# Copyright (c) 2020 Hobyst
+# Copyright © 2020 Hobyst
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 # Library for using the NIHIA protocol on FL Studio's MIDI Scripting API
 
 # This script contains all the functions and methods needed to take advantage of the deep integration
@@ -38,272 +33,15 @@ import arrangement
 import general
 import launchMapPages
 import playlist
-
 import midi
 import utils
 
-import math
+import device_Komplete_Kontrol_DAW
 
-###########################################################################################################################################
-# Editable variables
-###########################################################################################################################################
+# Method to make talking to the device less annoying
+# All the messages the device is expecting have a structure of "BF XX XX"
+# The STATUS byte always stays the same and only the DATA1 and DATA2 vary
 
-# Adjusts behaviour depending on which device is talking to
-# If set to "S_SERIES" it will adapt for S-Series devices
-# If set to "A_SERIES" OR "M_SERIES" it will adapt for A-Series and M-Series devices
-DEVICE_SERIES = "A_SERIES"
-
-###########################################################################################################################################
-# Test tools
-###########################################################################################################################################
-
-test = ""
-
-def encoderHandler(axis: str) -> int:
-    """ Allows to handle the inversion of axis of the 4D Encoder that happens between A/M-Series devices and S-Series devices, by 
-    returning the right MIDI value FL Studio has to check for.
-    ### Parameters
-     - axis: The axis you want to get the value for.
-    """
-    devices = {
-        "A_SERIES": 1,
-        "M_SERIES": 1,
-        "S_SERIES": 2
-    }
-
-    device = devices.get(DEVICE_SERIES)
-
-    # Device check
-    if device == 1:
-        # X axis
-        if axis == "X":
-           return buttons.get("ENCODER_X_A")
-        
-        # Y axis
-        if axis == "Y":
-           return buttons.get("ENCODER_Y_A")
-
-    if device == 2:
-        # X axis
-        if axis == "X":
-           return buttons.get("ENCODER_X_S")
-        
-        # Y axis
-        if axis == "Y":
-           return buttons.get("ENCODER_Y_S")
-    
-def OnInit():
-        handShake()
-
-        print("Set DEVICE_SERIES to the kind of device you are using in order to avoid problems with the 4D Encoder.")
-
-
-def OnMidiIn(event):
-    if test == "input":
-
-        # Play button
-        if event.data1 == buttons.get("PLAY"):
-            print("PLAY button pressed.")
-
-        # Restart button
-        if event.data1 == buttons.get("RESTART"):
-            print("RESTART button pressed.")
-
-        # Record button
-        if event.data1 == buttons.get("REC"):
-            print("REC button pressed.")
-        
-        # Count-In button
-        if event.data1 == buttons.get("COUNT_IN"):
-            print("COUNT_IN button pressed.")
-
-        # Stop button
-        if event.data1 == buttons.get("STOP"):
-            print("STOP button pressed.")
-
-        # Clear button
-        if event.data1 == buttons.get("CLEAR"):
-            print("CLEAR button pressed.")
-        
-        # Loop button
-        if event.data1 == buttons.get("LOOP"):
-            print("LOOP button pressed.")
-
-        # Metronome button
-        if event.data1 == buttons.get("METRO"):
-            print("METRO button pressed.")
-        
-        # Tempo button
-        if event.data1 == buttons.get("TEMPO"):
-            print("TEMPO button pressed.")
-
-        # Undo button
-        if event.data1 == buttons.get("UNDO"):
-            print("UNDO button pressed.")
-        
-        # Redo button
-        if event.data1 == buttons.get("REDO"):
-            print("REDO button pressed.")
-
-        # Quantize button
-        if event.data1 == buttons.get("QUANTIZE"):
-            print("QUANTIZE button pressed.")
-
-        # Automation button
-        if event.data1 == buttons.get("AUTO"):
-            print("AUTO button pressed.")
-
-        # Mute button
-        if event.data1 == buttons.get("MUTE"):
-            print("MUTE button pressed.")
-
-        # Solo button
-        if event.data1 == buttons.get("SOLO"):
-            print("SOLO button pressed.")
-
-        # 4D Encoder +
-        if event.data1 == buttons.get("ENCODER_PLUS") and event.data2 == buttons.get("ENCODER_PLUS")[1]:
-            print("ENCODER [+] pressed.")
-
-        # 4D Encoder -
-        if event.data1 == buttons.get("ENCODER_MINUS") and event.data2 == buttons.get("ENCODER_MINUS")[1]:
-            print("ENCODER [-] pressed.")
-        
-        # 4D Encoder up
-        if event.data1 == encoderHandler("Y") and event.data2 == buttons.get("UP"):
-            print("ENCODER UP pressed.")
-        
-        # 4D Encoder down 
-        if event.data1 == encoderHandler("Y") and event.data2 == buttons.get("DOWN"):
-            print("ENCODER DOWN pressed.")
-        
-        # 4D Encoder left
-        if event.data1 == encoderHandler("X") and event.data2 == buttons.get("LEFT"):
-            print("ENCODER LEFT pressed.")
-        
-        # 4D Encoder right
-        if event.data1 == encoderHandler("X") and event.data2 == buttons.get("RIGHT"):
-            print("ENCODER RIGHT pressed.")
-
-        # 4D Encoder buttons
-        if event.data1 == buttons.get("ENCODER_BUTTON"):
-            print("ENCODER BUTTON pressed.")
-
-
-        # Knobs
-        if event.data1 == knobs.get("KNOB_1A") and event.data2 == knobs.get("INCREASE"):
-            event.handled = True
-            print("KNOB 1 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_1A") and event.data2 == knobs.get("DECREASE"):
-            event.handled = True
-            print("KNOB 1 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_2A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 2 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_2A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 2 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_3A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 3 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_3A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 3 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_4A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 4 [+] pressed.")
-        
-        if event.data1 == knobs.get("KNOB_4A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 4 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_5A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 5 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_5A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 5 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_6A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 6 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_6A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 6 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_7A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 7 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_7A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 7 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_8A") and event.data2 == knobs.get("INCREASE"):
-            print("KNOB 8 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_8A") and event.data2 == knobs.get("DECREASE"):
-            print("KNOB 8 [-] pressed.")
-        
-
-        
-        if event.data1 == knobs.get("KNOB_1B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 1 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_1B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 1 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_2B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 2 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_2B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 2 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_3B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 3 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_3B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 3 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_4B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 4 [+] pressed.")
-        
-        if event.data1 == knobs.get("KNOB_4B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 4 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_5B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 5 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_5B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 5 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_6B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 6 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_6B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 6 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_7B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 7 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_7B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 7 [-] pressed.")
-
-        if event.data1 == knobs.get("KNOB_8B") and event.data2 == knobs.get("INCREASE"):
-            print("SHIFT + KNOB 8 [+] pressed.")
-
-        if event.data1 == knobs.get("KNOB_8B") and event.data2 == knobs.get("DECREASE"):
-            print("SHIFT + KNOB 8 [-] pressed.")
-
-
-def OnDeInit():
-    goodBye()
-###########################################################################################################################################
-
-
-###########################################################################################################################################
-# Dictionaries
-###########################################################################################################################################
-
-# Button name to button ID dictionary
-# The button ID is the number in hex that is used as the DATA1 parameter when a MIDI message related to that button is
-# sent or recieved from the device
 buttons = {
     "PLAY": 16,
     "RESTART": 17,
@@ -323,66 +61,303 @@ buttons = {
     "MUTE": 67,
     "SOLO": 68,
 
-    "MUTE_SELECTED": 102,
-    "SOLO_SELECTED": 103,
-
-    "ENCODER_BUTTON": 96,
-    "ENCODER_BUTTON_SHIFTED": 97,
-    
     # The 4D encoder events use the same data1, but different data2
-    # For example, if you want to retrieve the data1 value for ENCODER_PLUS you would do nihia.buttons.get("ENCODER_PLUS")[0]
-    # 
-    # data1 values are inverted for the axis of the 4D Encoder between A/M devices and S devices
-    # The values represented here correspond to A/M-Series
-    # D-pad
-    "ENCODER_X_A": 50,
-    "ENCODER_X_S": 48,
-    "RIGHT": 1,
-    "LEFT": 127,
+    # For example, if you want to retrieve the data1 value for ENCODER_PLUS 
+    # you would do nihia.buttons.get("ENCODER_PLUS")[0]
+    "ENCODER_BUTTON": 96,
+    "SHIFT+ENCODER_BUTTON": 97,
     
-    "ENCODER_Y_A": 48,
-    "ENCODER_Y_S": 50,
-    "UP": 127,
-    "DOWN": 1,
+    "ENCODER_RIGHT": [50, 1],
+    "ENCODER_LEFT": [50, 127],
+    
+    "ENCODER_UP": [48, 127],
+    "ENCODER_DOWN": [48, 1],
 
-    # Jog / knob
-    "ENCODER_GENERAL": 52,
-    "ENCODER_VOLUME_SELECTED": 100,
-    "ENCODER_PAN_SELECTED": 101,
+    "ENCODER_PLUS": [52, 1],
+    "ENCODER_MINUS": [52, 127],
 
-    "PLUS": 1,
-    "MINUS": 127,
+    "ENCODER_HORIZONTAL": 50,
+    "ENCODER_VERTICAL": 48,   
 
+    "ENCODER_SPIN": 52
 }
 
-# Knob to knob ID dictionary
-# The number in the name of the knob refers to the physical knob in the device from left to right
-# The letter at the end represents whether the knob is being shifted or not
-# Example:
-#   KNOB_1A --> First knob without shift. It is meant to adjust volume
-#   KNOB_1B --> First knob shifted (SHIFT button is being held down while using the knob). It is meant to adjust panning
 knobs = {
-    "KNOB_1A": 80,
-    "KNOB_2A": 81,
-    "KNOB_3A": 82,
-    "KNOB_4A": 83,
-    "KNOB_5A": 84,
-    "KNOB_6A": 85,
-    "KNOB_7A": 86,
-    "KNOB_8A": 87,
-    
-    "KNOB_1B": 88,
-    "KNOB_2B": 89,
-    "KNOB_3B": 90,
-    "KNOB_4B": 91,
-    "KNOB_5B": 92,
-    "KNOB_6B": 93,
-    "KNOB_7B": 94,
-    "KNOB_8B": 95,
+    "KNOB_0A": 80, 
+    "KNOB_1A": 81,
+    "KNOB_2A": 82,
+    "KNOB_3A": 83,
+    "KNOB_4A": 84,
+    "KNOB_5A": 85,
+    "KNOB_6A": 86,
+    "KNOB_7A": 87,
 
-    "INCREASE": 63,
-    "DECREASE": 65
+    "KNOB_0B": 88,
+    "KNOB_1B": 89,
+    "KNOB_2B": 90,
+    "KNOB_3B": 91,
+    "KNOB_4B": 92,
+    "KNOB_5B": 93,
+    "KNOB_6B": 94,
+    "KNOB_7B": 95
 }
+
+touch_strips = {
+   "PITCH": 0,
+   "MOD": 1
+}
+
+message = {
+   "EMPTY": " ",
+   "CHANNEL_RACK": "C: "
+}
+
+#on/off values
+on = 1
+off = 0
+ 
+def dataOut(data1, data2):
+    """ Function that makes commmuication with the keyboard easier. By just entering the DATA1 and DATA2 of the MIDI message, 
+    it composes the full message in forther to satisfy the syntax required by the midiOut functions, as well as the setting 
+    the STATUS of the message to BF as expected.""" 
+    
+    # Composes the MIDI message and sends it
+    convertmsg = [240, 191, data1, data2] # takes message and add the header required for communication with device
+    msgtom32 = bytearray(convertmsg) #converts message array into bytes, 1 turns into 0x01 but in b/01/ format
+    device.midiOutSysex(bytes(msgtom32)) #converts to 0x01 format
+
+def printText(trkn, word):
+
+      """ Function for easing the communication with the device OLED easier. The device has 8 slots 
+      that correspond to the 8 knobs. Knobs 0 through 7 on the device. Slot 0 (aka Knob 0 aka the
+      first knob from the left) is also use to display temporary messages. """
+
+      lettersh = [] #array where message to screen will be broken down by letter and/or spaces, i.e. hello turns into [h,e,l,l,o] **1
+      header = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, 72, 0] #required header in message to tell m32 where to place track title
+
+      n = 0
+      m = 0
+
+      letters = list(word) #convert word into letters in array
+
+      if len(letters) <= 11: #if the message to screen is less than 11 characters convert to message by letters see -> **1
+         while n < len(letters): #convert letters in array to integer representing the Unicode character
+            if ord(letters[n]) > 256:
+               n +=1
+            else:
+               lettersh.append(ord(letters[n]))
+               n += 1
+      else:
+         while n < 12: #convert letters in array to integer representing the Unicode character
+            if ord(letters[n]) > 256:
+               n += 1
+            else:   
+               lettersh.append(ord(letters[n]))
+               n += 1
+         
+      header.append(trkn) #adding track number to header at the end 
+
+      while m < len(lettersh): #combining header array and unicode value array together; just makes it easier to send to device
+         header.append(lettersh[m])
+         m += 1 
+
+      header.append(247) #tells m32, that's it that's the whole word
+      
+      device.midiOutSysex(bytes(header)) #send unicode values as bytes to OLED screen
+    
+def printVol(trkn, vol):
+
+      """ funtion that makes sendinig vol to the OLED screen easier"""
+       
+      volk = ""
+      
+      lettersh = [] 
+      header = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, 70, 0,] 
+
+      p = 0
+      n = 0
+      m = 0
+
+      vol==(float(vol))
+
+      if vol == 0:
+         volk = "- oo dB"
+         letters = list(volk) 
+
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1
+ 
+      elif vol >= 0.01 and vol <= 2.00:
+         
+         #volj = u'%d%%  ' % round((vol*100),2) # returns volume display to percentage
+         #lettersj = list(volj)
+         #while m < len(volj):
+         #   lettersh.append(ord(lettersj[m]))
+         #   m += 1 #end of volume in percentage 
+
+         volk = '%s dB' % device_Komplete_Kontrol_DAW.VolTodB(vol) # volume displayed in dB from here
+         letters = list(volk)
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1 # end of volume in dB
+         
+      elif vol >= 103:
+         volk = "N/A"
+         letters = list(volk) 
+
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1   
+
+      header.append(trkn)
+      
+      while m < len(lettersh):
+         header.append(lettersh[m])
+         m += 1
+
+      header.append(247)
+
+      device.midiOutSysex(bytes(header))
+
+def printPan(trkn, pan): 
+
+      pan = round(pan,0)
+
+      volk = ""
+
+      lettersh = [] 
+      header = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, 71, 0,]
+
+      p = 0
+      n = 0
+      m = 0
+
+      header.append(trkn)
+      
+
+      if pan == 0:
+         volk = "Centered"
+         letters = list(volk) 
+
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1 
+
+      elif pan < 0:
+         
+         volk = u'%d%% Left' % round((pan*-1),2)
+         letters = list(volk) 
+         
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1
+
+      elif pan > 0 and pan < 101:
+         
+         volk = u'%d%% Right' % round((pan),2)
+         letters = list(volk) 
+         
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1 
+
+      elif pan >= 103:
+         volk = "N/A"
+         letters = list(volk) 
+
+         while n < len(volk):
+            lettersh.append(ord(letters[n]))
+            n += 1        
+
+      while m < len(lettersh):
+         header.append(lettersh[m])
+         m += 1
+
+      header.append(247)
+
+      device.midiOutSysex(bytes(header))
+
+def oled_mute_solo(lighttype, state): 
+
+   header = [0, 240, 0, 33, 9, 0, 0, 68, 67, 1, 0]
+
+   omute = [lighttype, state, 0]
+   osolo = [lighttype, state, 0]
+
+   n = 0
+
+   if lighttype == buttons["MUTE"]:
+      while n < len(omute):
+         header.append(omute[n])
+         n += 1
+
+   elif lighttype == buttons["SOLO"]:
+      while n < len(osolo):
+         header.append(osolo[n])
+         n += 1
+
+   header.append(247)
+   device.midiOutSysex(bytes(header))
+
+# Method to enable the deep integration features on the device
+def initiate():
+    """ Acknowledges the device that a compatible host has been launched, wakes it up from MIDI mode and activates the deep
+    integration features of the device. TODO: Then waits for the answer of the device in order to confirm if the handshake 
+    was successful and returns True if affirmative."""
+
+    # Sends the MIDI message that initiates the handshake: BF 01 01
+
+    dataOut(1, 1)
+    #turning on group of lights not initialized during the nihia.initiate()
+    dataOut(buttons["CLEAR"], on)
+    dataOut(buttons["UNDO"], on) 
+    dataOut(buttons["REDO"], on) 
+    dataOut(buttons["AUTO"], on) 
+    dataOut(buttons["QUANTIZE"], on) 
+    device.midiOutSysex(bytes([240, 0, 33, 9, 0, 0, 68, 67, 1, 0, 64, 1, 0, 247])) # 'mute' & 'solo' button lights activated
+
+    # TODO: Waits and reads the handshake confirmation message
+   
+# Method to deactivate the deep integration mode. Intended to be executed on close.
+def terminate():
+    """ Sends the goodbye message to the device and exits it from deep integration mode. 
+    Intended to be executed before FL Studio closes."""
+
+    # Sends the goodbye message: BF 02 01
+    dataOut(2, 1)
+
+# Method for restarting the protocol on demand. Intended to be used by the end user in case the keyboard behaves 
+# unexpectedly.
+def restartProtocol():
+    """ Sends the goodbye message to then send the handshake message again. """
+
+    # Turns off the deep integration mode
+    terminate()
+
+    # Then activates it again
+    initiate()
+    
+
+# Method for controlling the lighting on the buttons (for those who have idle/highlighted two state lights)
+# Examples of this kind of buttons are the PLAY or REC buttons, where the PLAY button alternates between low and high light and so on.
+# SHIFT buttons are also included in this range of buttons, but instead of low/high light they alternate between on/off light states.
+def buttonSetLight(buttonName: str, lightMode: int):
+    """ Method for controlling the lights on the buttons of the device. 
+    
+    buttonName -- Name of the button as shown in the device in caps and enclosed in quotes. ("PLAY", "AUTO", "REDO"...)
+    EXCEPTION: declare the Count-In button as COUNT_IN
+    
+    lightMode -- If set to 0, sets the first light mode of the button. If set to 1, sets the second light mode."""
+
+    #Light mode integer to light mode hex dictionary
+    lightModes = {
+        0: 0,
+        1: 1
+    }
+
+    # Then sends the MIDI message using dataOut
+    dataOut(buttons.get(buttonName), lightModes.get(lightMode))
 
 # Dictionary that goes between the different kinds of information that can be sent to the device to specify information about the mixer tracks
 # and their corresponding identificative bytes
@@ -399,269 +374,41 @@ mixerinfo_types = {
     # their existance reported as 1 (which means the track exists) in order to light on the Mute and Solo buttons on the device
     "EXIST": 64,
     "SELECTED": 66,
-
-    "SELECTED_AVAILABLE": 104,
-    "SELECTED_MUTE_BY_SOLO": 105,
-
-    # This one only will make an effect on devices with full feature support, like the S-Series MK2 and it's used to send the peak meter information
-    "PEAK": 73,
-
-    # Serves to tell the device if there's a Komplete Kontrol instance added in a certain track or not
-    # In case there's one, we would use mixerSendInfo("KOMPLETE_INSTANCE", trackID, info="NIKBxx")
-    # In case there's none, we would use mixerSendInfo("KOMPLETE_INSTANCE", trackID, info="")
-    # NIKBxx is the name of the first automation parameter of the Komplete Kontrol plugin
-    "KOMPLETE_INSTANCE": 65,
-
-    # The S-Series keyboard have two arrows that graphically show the position of the volume fader and the pan on the screen
-    # These definitions have the MIDI values that have to be set as the data1 value of a simple MIDI message to tell the device where the volume arrow
-    # or the pan arrow should be for the first track
-    # For the rest of the tracks, you sum incrementally
-    # Example:
-    # ----------------------------------------------------
-    # BF 50 00  // Moves the volume fader of the first track down to the bottom 
-    # BF 50 40  // Moves the volume fader of the first track to the middle
-    # 
-    # BF 51 00  // Moves the volume fader of the second track down to the bottom 
-    # BF 51 40  // Moves the volume fader of the second track to the middle
-    # 
-    # BF 58 00  // Moves the pan fader of the first track down to the bottom 
-    # BF 58 40  // Moves the pan fader of the first track to the middle
-    # 
-    # BF 59 00  // Moves the pan fader of the second track down to the bottom 
-    # BF 59 40  // Moves the pan fader of the second track to the middle    
-    
-    "VOLUME_GRAPH": 80,
-    "PAN_GRAPH": 88,
 }
 
-# Track types dictionary
-# Used when reporting existance of tracks
-track_types = {
-    "EMPTY": 0,
-    "GENERIC": 1,
-    "MIDI": 2,
-    "AUDIO": 3,
-    "GROUP": 4,
-    "RETURN_BUS": 5,
-    "MASTER": 6
-}
-
-
-
-# Method to make talking to the device less annoying
-# All the messages the device is expecting have a structure of "BF XX XX"
-# The STATUS byte always stays the same and only the DATA1 and DATA2 vary
-def dataOut(data1: int or hex, data2: int or hex):
-    """ Function for easing the communication with the device. By just entering the DATA1 and DATA2 bytes of the MIDI message that has to be sent to the device, it 
-    composes the full message in order to satisfy the syntax required by the midiOutSysex method, 
-    as well as setting the STATUS of the message to BF as expected and sends the message. 
-    
-    data1, data2 -- Corresponding bytes of the MIDI message."""
-    
-    # Composes the MIDI message and sends it
-    device.midiOutSysex(bytes([240, 191, data1, data2, 247]))
-
-# Method to enable the deep integration features on the device
-def handShake():
-    """ Acknowledges the device that a compatible host has been launched, wakes it up from MIDI mode and activates the deep
-    integration features of the device. TODO: Then waits for the answer of the device in order to confirm if the handshake 
-    was successful and returns True if affirmative."""
-
-    # Sends the MIDI message that initiates the handshake: BF 01 01
-    dataOut(1, 3)
-
-    # TODO: Waits and reads the handshake confirmation message
-   
-
-# Method to deactivate the deep integration mode. Intended to be executed on close.
-def goodBye():
-    """ Sends the goodbye message to the device and exits it from deep integration mode. 
-    Intended to be executed before FL Studio closes."""
-
-    # Sends the goodbye message: BF 02 01
-    dataOut(2, 1)
-
-
-# Method for restarting the protocol on demand. Intended to be used by the end user in case the keyboard behaves 
-# unexpectedly.
-def restartProtocol():
-    """ Sends the goodbye message to then send the handshake message again. """
-
-    # Turns off the deep integration mode
-    goodBye()
-
-    # Then activates it again
-    handShake()
-
-    
-# Method for controlling the lighting on the buttons (for those who have idle/highlighted two state lights)
-# Examples of this kind of buttons are the PLAY or REC buttons, where the PLAY button alternates between low and high light and so on.
-# SHIFT buttons are also included in this range of buttons, but instead of low/high light they alternate between on/off light states.
-def buttonSetLight(buttonName: str, lightMode: int):
-    """ Method for controlling the lights on the buttons of the device. 
-    
-    ### Parameters
-
-     - buttonName: Name of the button as shown in the device in caps and enclosed in quotes. ("PLAY", "AUTO", "REDO"...)
-        - EXCEPTION: declare the Count-In button as COUNT_IN
-    
-     - lightMode: If set to 0, sets the first light mode of the button. If set to 1, sets the second light mode."""
-
-    #Light mode integer to light mode hex dictionary
-    lightModes = {
-        0: 0,
-        1: 1,
-
-        # For setting lights on of the right and down dot lights of the 4D Encoder on S-Series devices
-        127: 127
-    }
-
-    # Then sends the MIDI message using dataOut
-    dataOut(buttons.get(buttonName), lightModes.get(lightMode))
-
-
-
-# Method for reporting information about the mixer tracks, which is done through SysEx
+# Method for reporting information about the mixer tracks, which is done through Sysex
 # Couldn't make this one as two different functions under the same name since Python doesn't admit function overloading
 def mixerSendInfo(info_type: str, trackID: int, **kwargs):
     """ Sends info about the mixer tracks to the device.
     
-    ### Parameters
-
-     - info_type: The kind of information you're going to send as defined on `mixerinfo_types`. ("VOLUME", "PAN"...)
-         - Note: If declared as `"EXIST"`, you can also declare the track type on the `value` argument as a string (values are contained in `track_types` dictionary).
+    info_type -- The kind of information you're going to send. ("VOLUME", "PAN"...) Defined on nihia.mixerinfo_types
     
-     - trackID: From 0 to 7. Tells the device which track from the ones that are showing up in the screen you're going to tell info about.
-
-    The third (and last) argument depends on what kind of information you are going to send:
-
-     - value (integer): Can be 0 (no) or 1 (yes). Used for two-state properties like to tell if the track is solo-ed or not (except `"EXIST"`).
-
-     - info: Used for track name, track pan, track volume and the Komplete Kontrol instance ID.
-
-     - peakValues: For peak values. They can be neither integers or floats, and they will get reformated automatically. You can
-    also use the `mixer.getTrackPeaks` function directly to fill the argument, but remember you have to specify the left and the right channel separately. You have to 
-    report them as a list of values: `peak=[peakL_0, peakR_0, peakL_1, peakR_1 ...]`
+    trackID -- From 0 to 7. Tells the device which track from the ones that are showing up in the screen you're going to tell info about.
+    Third agument depends on what kind of information you are going to send:
+    value (integer) -- Can be 0 (no) or 1 (yes). Used for two-state properties like to tell if the track is solo-ed or not.
+    
+    or
+    info (string) -- Used for track name, track pan and track volume.
     """
 
     # Gets the inputed values for the optional arguments from **kwargs
     value = kwargs.get("value", 0)
     info = kwargs.get("info", None)
 
-    peakValues = kwargs.get("peakValues", None)
-
-    # Compatibility behaviour for older implementations of the layer before the addition of track_types
-    # This will retrieve the correct value in case the developer used the string based declaration
-    if type(value) == str:
-        value = track_types.get(value, 0)
-
-
-    # Defines the behaviour for when additional info is reported (for track name, track pan, track volume and peak values)
+    # Defines the behaviour for when additional info is reported (for track name, track pan and track volume)
     if info != None:
+
         # Tells Python that the additional_info argument is in UTF-8
         info = info.encode("UTF-8")
-
-        # Converts the text string to a list of Unicode values
-        info = list(bytes(info))
         
         # Conforms the kind of message midiOutSysex is waiting for
-        msg = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), value, trackID] + info + [247]
+        msg = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), value, trackID] + list(bytes(info)) + [247]
 
         # Warps the data and sends it to the device
         device.midiOutSysex(bytes(msg))
 
     # Defines how the method should work normally
-    elif info == None:
+    else:
         
         # Takes the information and wraps it on how it should be sent and sends the message
         device.midiOutSysex(bytes([240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), value, trackID, 247]))
-
-    
-    # For peak values
-    # Takes each value from the dictionary and rounds it in order to avoid conflicts with hexadecimals only being "compatible" with integer numbers 
-    # in case peak values are specified
-    if peakValues != None:
-            
-        for x in range(0, 16):
-            # Makes the max of the peak meter on the device match the one on FL Studio (values that FL Studio gives seem to be infinite)
-            if peakValues[x] >= 1.1:
-                peakValues[x] = 1.1
-        
-            # Translates the 0-1.1 range to 0-127 range
-            peakValues[x] = peakValues[x] * (127 / 1.1)
-        
-            # Truncates the possible decimals and declares the number as an integer to avoid errors in the translation of the data
-            peakValues[x] = int(math.trunc(peakValues[x]))
-
-        # Conforms the kind of message midiOutSysex is waiting for
-        msg = [240, 0, 33, 9, 0, 0, 68, 67, 1, 0, mixerinfo_types.get(info_type), 2, trackID] + peakValues + [247]
-
-        # Warps the data and sends it to the device
-        device.midiOutSysex(bytes(msg))
-
-
-# Method for changing the locations of the pan and volume arrows on the screen of S-Series devices to graphically show where the pan and volume faders are
-def mixerSetGraph(trackID: int, graph: str, location: float):
-    """ Method for changing the locations of the pan and volume arrows on the screen of S-Series devices to graphically show where the pan and volume faders are.
-    ### Parameters
-    
-     - trackID: From 0 to 7, the track whose the graph you want to update belongs to.
-     - graph: The graph you are going to change. Can be VOLUME or PAN.
-     - location: Can be filled using `mixer.getTrackVolume()` and `mixer.getTrackPan()`.
-         - `graph = "VOLUME"`: From 0  to 1.
-         - `graph = "PAN"`: From -1 to 1.
-    """
-    # Gets the right data1 value depending on the graph that has to be updated
-    if graph == "VOLUME":
-        graphValue = mixerinfo_types.get("VOLUME_GRAPH")
-    
-    if graph == "PAN":
-        graphValue = mixerinfo_types.get("PAN_GRAPH")
-    
-    # Adapts the given location value to MIDI values depending on the graph that is going to be updated
-    if graph == "VOLUME":
-        # Translates the 0-1 range to 0-127 range
-        location = location * 127
-    
-    if graph == "PAN":
-        # Translates the -1 to 1 range to 0-127 range
-        if location < 0:  # If the pan is negative, for hence is set to the left
-            location = abs(location)    # Gets the absolute value of the location
-            location = 64 - location * 64
-        
-        elif location == 0: # If the pan is negative, for hence is set to the center
-            location = 64
-        
-        elif location > 0:  # If the pan is positive, for hence is set to the right
-            location = 64 + location * 63
-    
-
-    # Truncates the possible decimals and declares the number as an integer to avoid errors in the translation of the data
-    location = int(math.trunc(location))
-
-    # Reports the change of the desired graph to the device
-    dataOut(graphValue + trackID, location)
-    
-
-def mixerSendInfoSelected(info_type: str, info: str):
-    """ Makes the device report MIDI messages for volume and pan adjusting for the selected track when exsitance of this track is reported as true.
-    ### Parameters
-     - info_type: The data you are going to tell about the selected track.
-         - SELECTED: If there's a track selected on the mixer or not.
-         - MUTE_BY_SOLO: To tell if it's muted by solo.
-     - info: The value of the info you are telling.
-         - `info_type = SELECTED`: The track type as defined on `track_types`.
-         - `info_type = MUTE_BY_SOLO`: Yes or no.
-    """
-    if info_type == "SELECTED":
-        info_type = mixerinfo_types.get("SELECTED_AVAILABLE")
-
-        info = track_types.get(info)
-    
-    # Not implemented yet in FL Studio
-    if info_type == "MUTE_BY_SOLO":
-        info_type = mixerinfo_types.get("SELECTED_MUTE_BY_SOLO")
-    
-
-    # Sends the message
-    dataOut(info_type, info)
